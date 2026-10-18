@@ -1,5 +1,11 @@
 export type DepartmentType = "Computer Science" | "Design" | "Business" | "Engineering";
 
+export interface EnrolledSubject {
+  code: string;
+  name: string;
+  credits: string;
+}
+
 export interface Student {
   id: string;
   name: string;
@@ -8,6 +14,13 @@ export interface Student {
   year: string;
   avatarBg: string;
   avatarText: string;
+  status?: string;
+  studyYear?: string;
   email?: string;
-  bio?: string;
+  enrolled?: string;
+  about?: string;
+  academicStanding?: string;
+  systemRecordId?: string;
+  lastValidated?: string;
+  subjects?: EnrolledSubject[];
 }

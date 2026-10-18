@@ -1,9 +1,12 @@
 export interface Department {
   id: string;
   name: string;
-  code: string;
+  code?: string;
   description: string;
-  facultyCount: number;
-  studentCount: number;
-  courses: string[];
+  specializations: string;
+  enrolledStudents: string;
+  facultyCount?: number;
+  studentCount?: number;
+  courses?: string[];
+  iconType: "code" | "design" | "business";
 }
