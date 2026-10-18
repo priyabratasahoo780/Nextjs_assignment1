@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import Navbar from "../component/Navbar";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import Navbar from "@/components/common/Navbar";
+import StudentCard from "@/components/students/StudentCard";
 
 interface Student {
   id: string;
@@ -89,9 +92,26 @@ const STUDENTS: Student[] = [
 ];
 
 export default function CampusDirectory() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F8FAFC]" />}>
+      <CampusDirectoryContent />
+    </Suspense>
+  );
+}
+
+function CampusDirectoryContent() {
+  const searchParams = useSearchParams();
+  const deptParam = searchParams.get("dept");
+
   const [activeTab, setActiveTab] = useState<string>("Students");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedDept, setSelectedDept] = useState<string>("All departments");
+  const [selectedDept, setSelectedDept] = useState<string>(deptParam || "All departments");
+
+  useEffect(() => {
+    if (deptParam) {
+      setSelectedDept(deptParam);
+    }
+  }, [deptParam]);
 
   const filteredStudents = useMemo(() => {
     return STUDENTS.filter((student) => {
@@ -109,7 +129,6 @@ export default function CampusDirectory() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col font-sans">
-      {/* Top Navbar Component */}
       <Navbar />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-8 pb-12">
@@ -186,77 +205,18 @@ export default function CampusDirectory() {
           </div>
         </div>
 
-        {/* Student Cards Grid */}
         {filteredStudents.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-500">
             No students found matching your criteria.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredStudents.map((student) => {
-              const isCS = student.department === "Computer Science";
-
-              return (
-                <div
-                  key={student.id}
-                  className="bg-white border border-slate-200 rounded-xl p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex flex-col justify-between hover:border-slate-300 transition-colors"
-                >
-                  <div>
-                    {/* Top Row: Avatar & Student ID */}
-                    <div className="flex items-start justify-between">
-                      <div
-                        className={`w-9 h-9 rounded-md flex items-center justify-center font-bold text-xs ${student.avatarBg} ${student.avatarText}`}
-                      >
-                        {student.initials}
-                      </div>
-                      <span className="font-mono text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">
-                        {student.id}
-                      </span>
-                    </div>
-
-                    {/* Student Name */}
-                    <h3 className="font-bold text-slate-900 text-base mt-4 mb-2">
-                      {student.name}
-                    </h3>
-
-                    {/* Department Badge & Year */}
-                    <div className="flex items-center gap-2 mb-4">
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded border ${
-                          isCS
-                            ? "bg-blue-50 text-blue-700 border-blue-200"
-                            : "bg-slate-100 text-slate-700 border-slate-200"
-                        }`}
-                      >
-                        {student.department}
-                      </span>
-                      <span className="text-xs text-slate-500 font-normal">
-                        {student.year}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Divider and Link */}
-                  <div>
-                    <div className="border-t border-slate-100 pt-3 mt-1">
-                      <button
-                        type="button"
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors group cursor-pointer"
-                      >
-                        <span>View profile</span>
-                        <span className="transition-transform group-hover:translate-x-0.5">
-                          &rarr;
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {filteredStudents.map((student) => (
+              <StudentCard key={student.id} student={student} />
+            ))}
           </div>
         )}
 
-        {/* Pagination & Summary Footer */}
         <div className="border-t border-slate-200 pt-4 mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
             Showing <strong className="font-semibold text-slate-700">{filteredStudents.length}</strong> of{" "}
